@@ -1,16 +1,16 @@
-name: 'Set Node Package Version'
-description: 'Set the current version to a given package.json'
+name: Set Unity Bundle Version
+description: Sets the current bundleVersion to a given Unity ProjectSettings.asset
 branding:
   icon: anchor
   color: blue
 inputs:
   file:
     description: |
-      'The package.json from which to read the version. '
-      'Defaults to package.json.'
+      'The ProjectSettings.asset from which to read the version. '
+      'Defaults to ProjectSettings.asset.'
       'Set if you need to read a different file / or different folder.'
     required: false
-    default: 'package.json'
+    default: 'ProjectSettings/ProjectSettings.asset'
   regex:
     description: |
       'ECMAScript Regular Expression to parse the version string for verification.'

@@ -1,6 +1,6 @@
-# set-node-package-version
+# set-unity-bundle-version
 
-GitHub Action to set the current version to a package.json.
+GitHub Action to set the current bundleVersion to a Unity project's ProjectSettings.asset.
 Places the set version into a context variable for later reference.
 
 ## Usage
@@ -24,7 +24,7 @@ jobs:
 
       - name: Set version
         id: package_version
-        uses: KageKirin/set-node-package-version@v0
+        uses: KageKirin/set-unity-bundle-version@v0
         with:
           version: ${{ github.ref_name }}
 
@@ -38,8 +38,8 @@ jobs:
 
 ### `file`
 
-This represents the path to the `package.json` to retrieve the version number from.
-It defaults to `package.json`,
+This represents the path to the `ProjectSettings.asset` to retrieve the version number from.
+It defaults to `ProjectSettings.asset`,
 but you might need to adapt it if the file is named differently,
 or lies in a subfolder.
 
@@ -57,12 +57,12 @@ It must match the provided `regex` format.
 
 ### `version`
 
-This the `version` string as retrieved from the `package.json` after writing to the file.
+This the `bundleVersion` string as retrieved from the `ProjectSettings.asset` after writing to the file.
 
 ## Errors
 
 The action will fail if:
 
 * it can't open the `file`
-* it fails to retrieve the `version` element
+* it fails to retrieve the `bundleVersion` element
 * the `version` string does not match the provided `regex`
