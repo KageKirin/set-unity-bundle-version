@@ -5800,20 +5800,42 @@ async function run()
     try
     {
         const [doc, schema] = parse_unityfile(file);
-        console.dir(doc)
+        console.dir({doc: doc})
         if (doc[0].PlayerSettings.bundleVersion)
         {
             const ver = parse_version(doc[0].PlayerSettings.bundleVersion);
             if (ver)
             {
-                core.setOutput('version', doc[0].PlayerSettings.bundleVersion);
+                doc[0].PlayerSettings.bundleVersion = version;
+                write_unityfile(doc, file, schema);
+            }
+            else
+            {
+                core.setFailed(`failed to parse ${file} bundleVersion`);
+            }
+        }
+        else
+        {
+            core.setFailed(`invalid ${file} does not contain version`);
+        }
+
+        // read back
+        const [doc2, schema2] = parse_unityfile(file);
+        console.dir({doc2: doc2})
+        console.dir(doc2[0].PlayerSettings)
+        if (doc2[0].PlayerSettings.bundleVersion)
+        {
+            const ver = parse_version(doc2[0].PlayerSettings.bundleVersion);
+            if (ver)
+            {
+                core.setOutput('version', doc2[0].PlayerSettings.bundleVersion);
             }
             else
             {
                 core.setFailed(`failed to parse ${file} version`);
             }
 
-            if (pkg2.version === pkg.version)
+            if (doc2[0].PlayerSettings.bundleVersion === doc[0].PlayerSettings.bundleVersion)
             {
                 // no issues
             }
@@ -5869,6 +5891,7 @@ function parse_version(version)
 
         return `!<tag:unity3d.com,2011:${p1}>`
     });
+    //console.log("fixedup string\n", file)
 
     // create our schema
     const schema = yaml.DEFAULT_SCHEMA.extend(Object.values(types));
@@ -5877,6 +5900,30 @@ function parse_version(version)
     const objAr = yaml.loadAll(file, null, { schema });
 
     return [objAr, schema];
+}
+
+function write_unityfile(objAr, path, schema)
+{
+    let str = "%YAML 1.1\n%TAG !u! tag:unity3d.com,2011:\n--- !u!129 &1\n"
+    objAr.forEach(element => {
+        str += yaml.dump(element, null, { schema: schema }); //noArrayIndent: true, flowLevel: -1,
+    });
+    str = str.replace(/(null)/g, '');
+    fs.writeFileSync(path, str);
+
+    console.log(`serialized file:\n${fs.readFileSync(path, 'utf8')}`);
+}
+
+function write_unityfile_version(oldversion, version, path, schema)
+{
+    let str = fs.readFileSync(path, 'utf8');
+    const r = new regex("/bundleVersion: (" + oldversion + ")/g");
+    str.replace(r, ( match, p1 ) => {
+        return version;
+    });
+
+    console.log(`new string\n${str}`)
+    fs.writeFileSync(path, str);
 }
 
 run()
