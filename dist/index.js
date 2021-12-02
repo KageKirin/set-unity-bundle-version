@@ -5866,10 +5866,10 @@ function parse_version(version)
     return null
 }
 
-/*async */function parse_unityfile(path)
+function parse_unityfile(path)
 {
     const types = {};
-    let file = /*await fs.promises.readFile(path, 'utf8');*/ fs.readFileSync(path, 'utf8');
+    let file = fs.readFileSync(path, 'utf8');
 
     // remove the unity tag line
     file = file.replace( /%TAG.+\r?\n?/, '' );
@@ -5909,20 +5909,6 @@ function write_unityfile(objAr, path, schema)
         str += yaml.dump(element, null, { schema: schema }); //noArrayIndent: true, flowLevel: -1,
     });
     str = str.replace(/(null)/g, '');
-    fs.writeFileSync(path, str);
-
-    console.log(`serialized file:\n${fs.readFileSync(path, 'utf8')}`);
-}
-
-function write_unityfile_version(oldversion, version, path, schema)
-{
-    let str = fs.readFileSync(path, 'utf8');
-    const r = new regex("/bundleVersion: (" + oldversion + ")/g");
-    str.replace(r, ( match, p1 ) => {
-        return version;
-    });
-
-    console.log(`new string\n${str}`)
     fs.writeFileSync(path, str);
 }
 
